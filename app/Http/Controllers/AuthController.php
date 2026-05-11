@@ -10,10 +10,19 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function register(RegisterRequest $request){
+    public function showLogin(){
+        return view('auth.login');
+    }
+
+    public function showRegister(){
+        return view('auth.register');
+    }
+
+    public function register(RegisterRequest $request)
+    {
         $validateData = $request->validated();
 
-        $id = DB::table('users')->insertGetId([
+        DB::table('users')->insert([
             'name'          => $validateData['name'],
             'email'         => $validateData['email'],
             'password'      => Hash::make($validateData['password']),
@@ -21,27 +30,18 @@ class AuthController extends Controller
             'updated_at'    => now(),
         ]);
 
-        return response()->json([
-            'success'       => true,
-            'message'       => 'Register berhasil',
-            'data'          => [
-                'id'        => $id,
-                'name'      => $validateData['name'],
-                'email'     => $validateData['email']
-            ]
-        ], 201);
+        return redirect('/login')->with('success', 'Register berhasil');
     }
 
     public function login(LoginRequest $request){
         $validateData = $request->validated();
 
         $user = DB::table('users')->where('email', $validateData['email'])->first();
-        
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email tidak ditemukan'
-            ], 404);
+
+        if(!$user){
+            return back()->with([
+                'error' => 'Email tidak ditemukan'
+            ]);
         }
 
         if (!Hash::check(
@@ -49,21 +49,25 @@ class AuthController extends Controller
             $user->password
         )) {
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Password salah'
-            ], 401);
+            return back()->with([
+                'error' => 'Password salah'
+            ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login berhasil',
-            'token' => 'logged_in',
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ]
+        session([
+            'is_login'  => true,
+            'user_id'   => $user->id,
+            'user_name' => $user->name,
         ]);
+
+        $request->session()->regenerate();
+
+        return redirect('/tasks');
+    }
+
+    public function logout(){
+        session()->flush();
+
+        return redirect('/login')->with('success', 'Logout berhasil');
     }
 }

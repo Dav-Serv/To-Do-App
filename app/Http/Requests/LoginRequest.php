@@ -25,17 +25,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'email'     => 'required|email',
-            'password'  => 'required|min:6',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'email.required'        => 'Email wajib diisi',
-            'email.email'           => 'Format email tidak sesuai',
-            'password.required'     => 'Password wajib diisi',
-            'password.min'          => 'Password minimal 6 karakter',
+            'password'  => 'required|min:6'
         ];
     }
 }

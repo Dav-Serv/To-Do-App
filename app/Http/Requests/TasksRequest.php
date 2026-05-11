@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Override;
 
-class RegisterRequest extends FormRequest
+class TasksRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +24,15 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'      => 'required',
-            'email'     => 'required|email|unique:users,email',
-            'password'  => 'required|min:6'
+            'title'         => 'required',
+            'description'   => 'required'
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'title.required' => 'Judul tugasnya diisi dulu ya, biar nggak lupa!'
         ];
     }
 }

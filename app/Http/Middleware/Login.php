@@ -15,10 +15,8 @@ class Login
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($request->header('X-USER') !== 'logged_in'){
-            return response()->json([
-                'message' => 'Silahkan login terlebih dahulu'
-            ], 401);
+        if (!session('is_login')) {
+            return redirect('/login')->with('error', 'Silahkan login terlebih dahulu');
         }
         
         return $next($request);
